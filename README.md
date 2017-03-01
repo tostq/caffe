@@ -1,3 +1,23 @@
+# Easy setup in VS2013
+
+## 1. Download Caffe
+-  `git clone https://github.com/BVLC/caffe.git`
+-  download zip
+
+## 2. Modify CommonSettings
+- Enter the folder `windows`
+- Copy `.\windows\CommonSettings.props.example` to `.\windows\CommonSettings.props`
+- modify `CommonSettings.props`
+	- more details in `.\windows\README.md`
+
+## 3. Compile libcaffe
+- default platform: x64, Release
+
+## 4. Compile caffe or other project
+- if CPU only, set Additional dependencies from `libcaffe.lib;$(CudaDependencies);%(AdditionalDependencies)` to `libcaffe.lib;%(AdditionalDependencies)`
+
+----------
+
 # Windows Caffe
 
 **This is an experimental, communtity based branch led by Guillaume Dumont (@willyd). It is a work-in-progress.**
