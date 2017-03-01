@@ -1,0 +1,124 @@
+﻿生成启动时间为 2017/3/1 13:19:09。
+     1>项目“E:\Code\windows_caffe\windows\libcaffe\libcaffe.vcxproj”在节点 2 上(Build 个目标)。
+     1>PreBuildEvent:
+         "E:\Code\windows_caffe\windows\\scripts\ProtoCompile.cmd" "E:\Code\windows_caffe\windows\" "E:\Code\NugetPackages\protoc_x64.2.6.1\build\native\"
+         :VCEnd
+         ProtoCompile.cmd : Create proto temp directory "E:\Code\windows_caffe\windows\..\src\caffe\proto\temp"
+         ProtoCompile.cmd : Generating "E:\Code\windows_caffe\windows\..\src\caffe\proto\temp\caffe.pb.h" and "E:\Code\windows_caffe\windows\..\src\caffe\proto\temp\caffe.pb.cc"
+         ProtoCompile.cmd : Create proto include directory
+         ProtoCompile.cmd : Compare newly compiled caffe.pb.h with existing one
+         FC: 无法打开 E:\CODE\WINDOWS_CAFFE\WINDOWS\..\INCLUDE\CAFFE\PROTO\CAFFE.PB.H - 找不到此类文件或文件夹
+         
+         ProtoCompile.cmd : Move newly generated caffe.pb.h to "E:\Code\windows_caffe\windows\..\include\caffe\proto\caffe.pb.h"
+         ProtoCompile.cmd : and caffe.pb.cc to "E:\Code\windows_caffe\windows\..\src\caffe\proto\caffe.pb.cc"
+         移动了         1 个文件。
+         移动了         1 个文件。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"E:\Code\NugetPackages\lmdb-v120-clean.0.9.14.0\build\native\..\..\lib\native\include" /I"E:\Code\NugetPackages\LevelDB-vc120.1.2.0.0\build\native\../..//build/native/include/" /I"E:\Code\NugetPackages\protobuf-v120.2.6.1\build\native\../..//build/native/include/" /IE:\Code\NugetPackages\glog.0.3.3.0\build\native\../..//build/native/include/ /IE:\Code\NugetPackages\gflags.2.1.2.1\build\native\../..///build/native/include/ /IE:\Code\NugetPackages\boost.1.59.0.0\build\native\..\..\lib\native\include\ /I"E:\Code\NugetPackages\hdf5-v120-complete.1.8.15.2\build\native\..\..\lib\native\include" /IE:\Code\NugetPackages\OpenBLAS.0.2.14.1\build\native\..\..\lib\native\include /IE:\Code\NugetPackages\OpenCV.2.4.10\build\native\../../build/native/include/ /IE:\Code\windows_caffe\windows\libcaffe\\..\..\src\ /Zi /nologo /W1 /WX /MP /Od /D HAS_LMDB /D HAS_HDF5 /D HAS_OPENBLAS /D HAS_OPENCV /D _DEBUG /D _SCL_SECURE_NO_WARNINGS /D USE_OPENCV /D USE_LEVELDB /D USE_LMDB /D MATLAB_MEX_FILE /D WITH_PYTHON_LAYER /D BOOST_PYTHON_STATIC_LIB /D CPU_ONLY /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\Code\windows_caffe\windows\..\Build\Int\libcaffe\x64\Debug\\" /Fd"E:\Code\windows_caffe\windows\..\Build\Int\libcaffe\x64\Debug\vc120.pdb" /Gd /TP /wd4661 /wd4005 /wd4812 /wd4715 /errorReport:prompt ..\..\src\caffe\blob.cpp ..\..\src\caffe\common.cpp ..\..\src\caffe\data_reader.cpp ..\..\src\caffe\data_transformer.cpp ..\..\src\caffe\internal_thread.cpp ..\..\src\caffe\layer.cpp ..\..\src\caffe\layers\absval_layer.cpp ..\..\src\caffe\layers\accuracy_layer.cpp ..\..\src\caffe\layers\argmax_layer.cpp ..\..\src\caffe\layers\base_conv_layer.cpp ..\..\src\caffe\layers\base_data_layer.cpp ..\..\src\caffe\layers\batch_norm_layer.cpp ..\..\src\caffe\layers\batch_reindex_layer.cpp ..\..\src\caffe\layers\bias_layer.cpp ..\..\src\caffe\layers\bnll_layer.cpp ..\..\src\caffe\layers\concat_layer.cpp ..\..\src\caffe\layers\contrastive_loss_layer.cpp ..\..\src\caffe\layers\conv_layer.cpp ..\..\src\caffe\layers\crop_layer.cpp ..\..\src\caffe\layers\cudnn_conv_layer.cpp ..\..\src\caffe\layers\cudnn_lcn_layer.cpp ..\..\src\caffe\layers\cudnn_lrn_layer.cpp ..\..\src\caffe\layers\cudnn_pooling_layer.cpp ..\..\src\caffe\layers\cudnn_relu_layer.cpp ..\..\src\caffe\layers\cudnn_sigmoid_layer.cpp ..\..\src\caffe\layers\cudnn_softmax_layer.cpp ..\..\src\caffe\layers\cudnn_tanh_layer.cpp ..\..\src\caffe\layers\data_layer.cpp ..\..\src\caffe\layers\deconv_layer.cpp ..\..\src\caffe\layers\dropout_layer.cpp ..\..\src\caffe\layers\dummy_data_layer.cpp ..\..\src\caffe\layers\eltwise_layer.cpp ..\..\src\caffe\layers\elu_layer.cpp ..\..\src\caffe\layers\embed_layer.cpp ..\..\src\caffe\layers\euclidean_loss_layer.cpp ..\..\src\caffe\layers\exp_layer.cpp ..\..\src\caffe\layers\filter_layer.cpp ..\..\src\caffe\layers\flatten_layer.cpp ..\..\src\caffe\layers\hdf5_data_layer.cpp ..\..\src\caffe\layers\hdf5_output_layer.cpp ..\..\src\caffe\layers\hinge_loss_layer.cpp ..\..\src\caffe\layers\im2col_layer.cpp ..\..\src\caffe\layers\image_data_layer.cpp ..\..\src\caffe\layers\infogain_loss_layer.cpp ..\..\src\caffe\layers\inner_product_layer.cpp ..\..\src\caffe\layers\input_layer.cpp ..\..\src\caffe\layers\log_layer.cpp ..\..\src\caffe\layers\loss_layer.cpp ..\..\src\caffe\layers\lrn_layer.cpp ..\..\src\caffe\layers\memory_data_layer.cpp ..\..\src\caffe\layers\multinomial_logistic_loss_layer.cpp ..\..\src\caffe\layers\mvn_layer.cpp ..\..\src\caffe\layers\neuron_layer.cpp ..\..\src\caffe\layers\parameter_layer.cpp ..\..\src\caffe\layers\pooling_layer.cpp ..\..\src\caffe\layers\power_layer.cpp ..\..\src\caffe\layers\prelu_layer.cpp ..\..\src\caffe\layers\reduction_layer.cpp ..\..\src\caffe\layers\relu_layer.cpp ..\..\src\caffe\layers\reshape_layer.cpp ..\..\src\caffe\layers\scale_layer.cpp ..\..\src\caffe\layers\sigmoid_cross_entropy_loss_layer.cpp ..\..\src\caffe\layers\sigmoid_layer.cpp ..\..\src\caffe\layers\silence_layer.cpp ..\..\src\caffe\layers\slice_layer.cpp ..\..\src\caffe\layers\softmax_layer.cpp ..\..\src\caffe\layers\softmax_loss_layer.cpp ..\..\src\caffe\layers\split_layer.cpp ..\..\src\caffe\layers\spp_layer.cpp ..\..\src\caffe\layers\tanh_layer.cpp ..\..\src\caffe\layers\threshold_layer.cpp ..\..\src\caffe\layers\tile_layer.cpp ..\..\src\caffe\layers\window_data_layer.cpp ..\..\src\caffe\layer_factory.cpp ..\..\src\caffe\net.cpp ..\..\src\caffe\parallel.cpp ..\..\src\caffe\proto\caffe.pb.cc ..\..\src\caffe\solver.cpp ..\..\src\caffe\solvers\adadelta_solver.cpp ..\..\src\caffe\solvers\adagrad_solver.cpp ..\..\src\caffe\solvers\adam_solver.cpp ..\..\src\caffe\solvers\nesterov_solver.cpp ..\..\src\caffe\solvers\rmsprop_solver.cpp ..\..\src\caffe\solvers\sgd_solver.cpp ..\..\src\caffe\solver_factory.cpp ..\..\src\caffe\syncedmem.cpp ..\..\src\caffe\util\benchmark.cpp ..\..\src\caffe\util\blocking_queue.cpp ..\..\src\caffe\util\cudnn.cpp ..\..\src\caffe\util\db.cpp ..\..\src\caffe\util\db_leveldb.cpp ..\..\src\caffe\util\db_lmdb.cpp ..\..\src\caffe\util\hdf5.cpp ..\..\src\caffe\util\im2col.cpp ..\..\src\caffe\util\insert_splits.cpp ..\..\src\caffe\util\io.cpp ..\..\src\caffe\util\math_functions.cpp ..\..\src\caffe\util\signal_handler.cpp ..\..\src\caffe\util\upgrade_proto.cpp
+         blob.cpp
+         common.cpp
+         data_reader.cpp
+         data_transformer.cpp
+     1>c1xx : fatal error C1083: 无法打开源文件: “..\..\src\caffe\data_reader.cpp”: No such file or directory
+         internal_thread.cpp
+         layer.cpp
+         absval_layer.cpp
+         accuracy_layer.cpp
+         argmax_layer.cpp
+         base_conv_layer.cpp
+         base_data_layer.cpp
+         batch_norm_layer.cpp
+         batch_reindex_layer.cpp
+         bias_layer.cpp
+         bnll_layer.cpp
+         concat_layer.cpp
+         contrastive_loss_layer.cpp
+         conv_layer.cpp
+         crop_layer.cpp
+         cudnn_conv_layer.cpp
+         cudnn_lcn_layer.cpp
+         cudnn_lrn_layer.cpp
+         cudnn_pooling_layer.cpp
+         cudnn_relu_layer.cpp
+         cudnn_sigmoid_layer.cpp
+         cudnn_softmax_layer.cpp
+         cudnn_tanh_layer.cpp
+         data_layer.cpp
+         deconv_layer.cpp
+         dropout_layer.cpp
+         dummy_data_layer.cpp
+         eltwise_layer.cpp
+         elu_layer.cpp
+         embed_layer.cpp
+         euclidean_loss_layer.cpp
+         exp_layer.cpp
+         filter_layer.cpp
+         flatten_layer.cpp
+         hdf5_data_layer.cpp
+         hdf5_output_layer.cpp
+         hinge_loss_layer.cpp
+         im2col_layer.cpp
+         image_data_layer.cpp
+         infogain_loss_layer.cpp
+         inner_product_layer.cpp
+         input_layer.cpp
+         log_layer.cpp
+         loss_layer.cpp
+         lrn_layer.cpp
+         memory_data_layer.cpp
+         multinomial_logistic_loss_layer.cpp
+         mvn_layer.cpp
+         neuron_layer.cpp
+         parameter_layer.cpp
+         pooling_layer.cpp
+         power_layer.cpp
+         prelu_layer.cpp
+         reduction_layer.cpp
+         relu_layer.cpp
+         reshape_layer.cpp
+         scale_layer.cpp
+         sigmoid_cross_entropy_loss_layer.cpp
+         sigmoid_layer.cpp
+         silence_layer.cpp
+         slice_layer.cpp
+         softmax_layer.cpp
+         softmax_loss_layer.cpp
+         split_layer.cpp
+         spp_layer.cpp
+         tanh_layer.cpp
+         threshold_layer.cpp
+         tile_layer.cpp
+         window_data_layer.cpp
+         layer_factory.cpp
+         net.cpp
+         parallel.cpp
+         caffe.pb.cc
+         solver.cpp
+         adadelta_solver.cpp
+         adagrad_solver.cpp
+         adam_solver.cpp
+         nesterov_solver.cpp
+         rmsprop_solver.cpp
+         sgd_solver.cpp
+         solver_factory.cpp
+         syncedmem.cpp
+         benchmark.cpp
+         blocking_queue.cpp
+         cudnn.cpp
+         db.cpp
+         db_leveldb.cpp
+         db_lmdb.cpp
+         hdf5.cpp
+         im2col.cpp
+         insert_splits.cpp
+         io.cpp
+         math_functions.cpp
+         signal_handler.cpp
+     1>E:\Code\NugetPackages\boost.1.59.0.0\lib\native\include\boost/format/alt_sstream_impl.hpp : error C2220: 警告被视为错误 - 没有生成“object”文件 (..\..\src\caffe\util\math_functions.cpp)
+     1>E:\Code\NugetPackages\boost.1.59.0.0\lib\native\include\boost/format/alt_sstream_impl.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 (..\..\src\caffe\util\math_functions.cpp)
+         upgrade_proto.cpp
+     1>已完成生成项目“E:\Code\windows_caffe\windows\libcaffe\libcaffe.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:01:38.97
