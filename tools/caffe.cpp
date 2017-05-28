@@ -7,13 +7,14 @@ namespace bp = boost::python;
 #include <glog/logging.h>
 
 #include <cstring>
-#include <map>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "boost/algorithm/string.hpp"
 #include "caffe/caffe.hpp"
 #include "caffe/util/signal_handler.h"
+//#include "caffe/util/bbox_util.hpp"
 
 using caffe::Blob;
 using caffe::Caffe;
@@ -25,6 +26,9 @@ using caffe::string;
 using caffe::Timer;
 using caffe::vector;
 using std::ostringstream;
+using caffe::map;
+using caffe::pair;
+using caffe::ComputeAP;
 
 DEFINE_string(gpu, "",
     "Optional; run in GPU mode on given device IDs separated by ','."
@@ -34,13 +38,6 @@ DEFINE_string(solver, "",
     "The solver definition protocol buffer text file.");
 DEFINE_string(model, "",
     "The model definition protocol buffer text file.");
-DEFINE_string(phase, "",
-    "Optional; network phase (TRAIN or TEST). Only used for 'time'.");
-DEFINE_int32(level, 0,
-    "Optional; network level.");
-DEFINE_string(stage, "",
-    "Optional; network stages (not to be confused with phase), "
-    "separated by ','.");
 DEFINE_string(snapshot, "",
     "Optional; the snapshot solver state to resume training.");
 DEFINE_string(weights, "",
@@ -108,25 +105,6 @@ static void get_gpus(vector<int>* gpus) {
   }
 }
 
-// Parse phase from flags
-caffe::Phase get_phase_from_flags(caffe::Phase default_value) {
-  if (FLAGS_phase == "")
-    return default_value;
-  if (FLAGS_phase == "TRAIN")
-    return caffe::TRAIN;
-  if (FLAGS_phase == "TEST")
-    return caffe::TEST;
-  LOG(FATAL) << "phase must be \"TRAIN\" or \"TEST\"";
-  return caffe::TRAIN;  // Avoid warning
-}
-
-// Parse stages from flags
-vector<string> get_stages_from_flags() {
-  vector<string> stages;
-  boost::split(stages, FLAGS_stage, boost::is_any_of(","));
-  return stages;
-}
-
 // caffe commands to call by
 //     caffe <command> <args>
 //
@@ -174,7 +152,6 @@ caffe::SolverAction::Enum GetRequestedAction(
     return caffe::SolverAction::NONE;
   }
   LOG(FATAL) << "Invalid signal effect \""<< flag_value << "\" was specified";
-  return caffe::SolverAction::NONE;
 }
 
 // Train / Finetune a model.
@@ -183,20 +160,13 @@ int train() {
   CHECK(!FLAGS_snapshot.size() || !FLAGS_weights.size())
       << "Give a snapshot to resume training or weights to finetune "
       "but not both.";
-  vector<string> stages = get_stages_from_flags();
 
   caffe::SolverParameter solver_param;
   caffe::ReadSolverParamsFromTextFileOrDie(FLAGS_solver, &solver_param);
 
-  solver_param.mutable_train_state()->set_level(FLAGS_level);
-  for (int i = 0; i < stages.size(); i++) {
-    solver_param.mutable_train_state()->add_stage(stages[i]);
-  }
-
   // If the gpus flag is not provided, allow the mode and device to be set
   // in the solver prototxt.
   if (FLAGS_gpu.size() == 0
-      && solver_param.has_solver_mode()
       && solver_param.solver_mode() == caffe::SolverParameter_SolverMode_GPU) {
       if (solver_param.has_device_id()) {
           FLAGS_gpu = "" +
@@ -246,15 +216,11 @@ int train() {
     CopyLayers(solver.get(), FLAGS_weights);
   }
 
-  LOG(INFO) << "Starting Optimization";
   if (gpus.size() > 1) {
-#ifdef USE_NCCL
-    caffe::NCCL<float> nccl(solver);
-    nccl.Run(gpus, FLAGS_snapshot.size() > 0 ? FLAGS_snapshot.c_str() : NULL);
-#else
-    LOG(FATAL) << "Multi-GPU execution not available - rebuild with USE_NCCL";
-#endif
+    caffe::P2PSync<float> sync(solver, NULL, solver->param());
+    sync.Run(gpus);
   } else {
+    LOG(INFO) << "Starting Optimization";
     solver->Solve();
   }
   LOG(INFO) << "Optimization Done.";
@@ -267,7 +233,6 @@ RegisterBrewFunction(train);
 int test() {
   CHECK_GT(FLAGS_model.size(), 0) << "Need a model definition to score.";
   CHECK_GT(FLAGS_weights.size(), 0) << "Need model weights to score.";
-  vector<string> stages = get_stages_from_flags();
 
   // Set device id and mode
   vector<int> gpus;
@@ -286,7 +251,7 @@ int test() {
     Caffe::set_mode(Caffe::CPU);
   }
   // Instantiate the caffe net.
-  Net<float> caffe_net(FLAGS_model, caffe::TEST, FLAGS_level, &stages);
+  Net<float> caffe_net(FLAGS_model, caffe::TEST);
   caffe_net.CopyTrainedLayersFrom(FLAGS_weights);
   LOG(INFO) << "Running for " << FLAGS_iterations << " iterations.";
 
@@ -336,11 +301,136 @@ int test() {
 RegisterBrewFunction(test);
 
 
+// Test: score a model.
+int detection_test() {
+	CHECK_GT(FLAGS_model.size(), 0) << "Need a model definition to score.";
+	CHECK_GT(FLAGS_weights.size(), 0) << "Need model weights to score.";
+
+	// Set device id and mode
+	vector<int> gpus;
+	get_gpus(&gpus);
+	if (gpus.size() != 0) {
+		LOG(INFO) << "Use GPU with device ID " << gpus[0];
+#ifndef CPU_ONLY
+		cudaDeviceProp device_prop;
+		cudaGetDeviceProperties(&device_prop, gpus[0]);
+		LOG(INFO) << "GPU device name: " << device_prop.name;
+#endif
+		Caffe::SetDevice(gpus[0]);
+		Caffe::set_mode(Caffe::GPU);
+	}
+	else {
+		LOG(INFO) << "Use CPU.";
+		Caffe::set_mode(Caffe::CPU);
+	}
+	// Instantiate the caffe net.
+	Net<float> caffe_net(FLAGS_model, caffe::TEST);
+	caffe_net.CopyTrainedLayersFrom(FLAGS_weights);
+	LOG(INFO) << "Running for " << FLAGS_iterations << " iterations.";
+
+	vector<int> test_score_output_id;
+	vector<float> test_score;
+
+	map<int, map<int, vector<pair<float, int> > > > all_true_pos;
+	map<int, map<int, vector<pair<float, int> > > > all_false_pos;
+	map<int, map<int, int> > all_num_pos;
+	float loss = 0;
+	for (int i = 0; i < FLAGS_iterations; ++i) {
+		float iter_loss;
+		const vector<Blob<float>*>& result =
+			caffe_net.Forward(&iter_loss); // 计算网络
+
+		loss += iter_loss; // 统计损失
+		for (int j = 0; j < result.size(); ++j) {
+			CHECK_EQ(result[j]->width(), 5);
+			const float* result_vec = result[j]->cpu_data(); // 检测结果
+			int num_det = result[j]->height();
+			for (int k = 0; k < num_det; ++k) {
+				int item_id = static_cast<int>(result_vec[k * 5]);
+				int label = static_cast<int>(result_vec[k * 5 + 1]);
+				if (item_id == -1) {
+					// Special row of storing number of positives for a label.
+					if (all_num_pos[j].find(label) == all_num_pos[j].end()) {
+						all_num_pos[j][label] = static_cast<int>(result_vec[k * 5 + 2]);
+					}
+					else {
+						all_num_pos[j][label] += static_cast<int>(result_vec[k * 5 + 2]);
+					}
+				}
+				else {
+					// Normal row storing detection status.
+					float score = result_vec[k * 5 + 2];
+					int tp = static_cast<int>(result_vec[k * 5 + 3]);
+					int fp = static_cast<int>(result_vec[k * 5 + 4]);
+					if (tp == 0 && fp == 0) {
+						// Ignore such case. It happens when a detection bbox is matched to
+						// a difficult gt bbox and we don't evaluate on difficult gt bbox.
+						continue;
+					}
+					all_true_pos[j][label].push_back(std::make_pair(score, tp));
+					all_false_pos[j][label].push_back(std::make_pair(score, fp));
+				}
+			}
+		}
+	}
+
+	// 输出平均损失
+	loss /= FLAGS_iterations;
+	LOG(INFO) << "Test loss: " << loss;
+
+	for (int i = 0; i < all_true_pos.size(); ++i) {
+		if (all_true_pos.find(i) == all_true_pos.end()) {
+			LOG(FATAL) << "Missing output_blob true_pos: " << i;
+		}
+		const map<int, vector<pair<float, int> > >& true_pos =
+			all_true_pos.find(i)->second;
+		if (all_false_pos.find(i) == all_false_pos.end()) {
+			LOG(FATAL) << "Missing output_blob false_pos: " << i;
+		}
+		const map<int, vector<pair<float, int> > >& false_pos =
+			all_false_pos.find(i)->second;
+		if (all_num_pos.find(i) == all_num_pos.end()) {
+			LOG(FATAL) << "Missing output_blob num_pos: " << i;
+		}
+		const map<int, int>& num_pos = all_num_pos.find(i)->second;
+		map<int, float> APs;
+		float mAP = 0.;
+		// Sort true_pos and false_pos with descend scores.
+		for (map<int, int>::const_iterator it = num_pos.begin();
+			it != num_pos.end(); ++it) {
+			int label = it->first;
+			int label_num_pos = it->second;
+			if (true_pos.find(label) == true_pos.end()) {
+				LOG(WARNING) << "Missing true_pos for label: " << label;
+				continue;
+			}
+			const vector<pair<float, int> >& label_true_pos =
+				true_pos.find(label)->second;
+			if (false_pos.find(label) == false_pos.end()) {
+				LOG(WARNING) << "Missing false_pos for label: " << label;
+				continue;
+			}
+			const vector<pair<float, int> >& label_false_pos =
+				false_pos.find(label)->second;
+			vector<float> prec, rec;
+			ComputeAP(label_true_pos, label_num_pos, label_false_pos,
+				"11point", &prec, &rec, &(APs[label]));
+			mAP += APs[label];
+		}
+		mAP /= num_pos.size();
+		const int output_blob_index = caffe_net.output_blob_indices()[i];
+		const string& output_name = caffe_net.blob_names()[output_blob_index];
+		LOG(INFO) << "    Test net output #" << i << ": " << output_name << " = "
+			<< mAP;
+	}
+	return 0;
+}
+RegisterBrewFunction(detection_test);
+
+
 // Time: benchmark the execution time of a model.
 int time() {
   CHECK_GT(FLAGS_model.size(), 0) << "Need a model definition to time.";
-  caffe::Phase phase = get_phase_from_flags(caffe::TRAIN);
-  vector<string> stages = get_stages_from_flags();
 
   // Set device id and mode
   vector<int> gpus;
@@ -354,7 +444,7 @@ int time() {
     Caffe::set_mode(Caffe::CPU);
   }
   // Instantiate the caffe net.
-  Net<float> caffe_net(FLAGS_model, phase, FLAGS_level, &stages);
+  Net<float> caffe_net(FLAGS_model, caffe::TRAIN);
 
   // Do a clean forward and backward pass, so that memory allocation are done
   // and future iterations will be more stable.

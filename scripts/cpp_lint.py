@@ -1595,10 +1595,10 @@ def CheckCaffeAlternatives(filename, clean_lines, linenum, error):
 def CheckCaffeDataLayerSetUp(filename, clean_lines, linenum, error):
   """Except the base classes, Caffe DataLayer should define DataLayerSetUp
      instead of LayerSetUp.
-     
+
   The base DataLayers define common SetUp steps, the subclasses should
   not override them.
-  
+
   Args:
     filename: The name of the current file.
     clean_lines: A CleansedLines instance containing the file.
@@ -1608,9 +1608,11 @@ def CheckCaffeDataLayerSetUp(filename, clean_lines, linenum, error):
   line = clean_lines.elided[linenum]
   ix = line.find('DataLayer<Dtype>::LayerSetUp')
   if ix >= 0 and (
+       line.find('void AnnotatedDataLayer<Dtype>::LayerSetUp') != -1 or
        line.find('void DataLayer<Dtype>::LayerSetUp') != -1 or
        line.find('void ImageDataLayer<Dtype>::LayerSetUp') != -1 or
        line.find('void MemoryDataLayer<Dtype>::LayerSetUp') != -1 or
+       line.find('void VideoDataLayer<Dtype>::LayerSetUp') != -1 or
        line.find('void WindowDataLayer<Dtype>::LayerSetUp') != -1):
       error(filename, linenum, 'caffe/data_layer_setup', 2,
             'Except the base classes, Caffe DataLayer should define'
@@ -1620,9 +1622,11 @@ def CheckCaffeDataLayerSetUp(filename, clean_lines, linenum, error):
   ix = line.find('DataLayer<Dtype>::DataLayerSetUp')
   if ix >= 0 and (
        line.find('void Base') == -1 and
+       line.find('void AnnotatedDataLayer<Dtype>::DataLayerSetUp') == -1 and
        line.find('void DataLayer<Dtype>::DataLayerSetUp') == -1 and
        line.find('void ImageDataLayer<Dtype>::DataLayerSetUp') == -1 and
        line.find('void MemoryDataLayer<Dtype>::DataLayerSetUp') == -1 and
+       line.find('void VideoDataLayer<Dtype>::DataLayerSetUp') == -1 and
        line.find('void WindowDataLayer<Dtype>::DataLayerSetUp') == -1):
       error(filename, linenum, 'caffe/data_layer_setup', 2,
             'Except the base classes, Caffe DataLayer should define'
@@ -4460,7 +4464,7 @@ def UpdateIncludeState(filename, include_state, io=codecs):
     io: The io factory to use to read the file. Provided for testability.
 
   Returns:
-    True if a header was successfully added. False otherwise.
+    True if a header was succesfully added. False otherwise.
   """
   headerfile = None
   try:
@@ -4532,7 +4536,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
   # Let's copy the include_state so it is only messed up within this function.
   include_state = include_state.copy()
 
-  # Did we find the header for this file (if any) and successfully load it?
+  # Did we find the header for this file (if any) and succesfully load it?
   header_found = False
 
   # Use the absolute path so that matching works properly.
@@ -4833,7 +4837,7 @@ def ParseArguments(args):
       try:
           _valid_extensions = set(val.split(','))
       except ValueError:
-          PrintUsage('Extensions must be comma separated list.')
+          PrintUsage('Extensions must be comma seperated list.')
 
   if not filenames:
     PrintUsage('No files were specified.')
@@ -4848,6 +4852,13 @@ def ParseArguments(args):
 
 def main():
   filenames = ParseArguments(sys.argv[1:])
+
+  remove_filenames = [
+      'include/caffe/3rdparty/hungarian.h',
+      'src/caffe/3rdparty/hungarian.cpp']
+  for remove_filename in remove_filenames:
+    if remove_filename in filenames:
+      filenames.remove(remove_filename)
 
   # Change stderr to write with replacement characters so we don't die
   # if we try to print something containing non-ASCII characters.

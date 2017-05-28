@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{17f4c88d-9ace-4203-8397-e3c3d1eea5a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{29c4c325-c3cc-4c55-bced-12052e807642}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="detect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="mnist\convert_data.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SqueezeNet.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SSD.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="detect.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="convert_data.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SqueezeNet.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SSD.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
